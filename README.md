@@ -6,6 +6,7 @@ Seems like things work directly hitting Anthropic APIs, but not through OpenRout
 ## Background
 
 https://github.com/vercel/ai/issues/9351 @Redaren suggested a solution that was breaking for me - wrong types, (no withMiddleware and wrong object shape in wrapGenerate)
+
 https://github.com/vercel/ai/issues/7220 @aminelemaizi solution didn't really demonstrate how to use it, I figured faster to take the one above and make it work with current code.
 
 ## Run with bun
