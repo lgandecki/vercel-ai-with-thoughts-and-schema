@@ -3,6 +3,37 @@
 This repository showcases the solution to use Vercel AI with thinking and schema for Anthropic Claude , Kimi and Minimax models.
 Seems like things work directly hitting Anthropic APIs, but not through OpenRouter yet.
 
+## Example
+
+```typescript
+export const callOpenRouter = async <T>(
+  prompt: string,
+  schema: z.ZodSchema<T>,
+  modelName: string
+) => {
+  let model: LanguageModel = openrouter(modelName);
+  if (["claude", "minimax", "kimi"].some((name) => modelName.includes(name))) {
+    model = wrapLanguageModel({ model, middleware: thinkingSchemaMiddleware });
+  }
+
+  const { object } = await generateObject({
+    model,
+    schema,
+    prompt,
+  });
+
+  return object as T;
+};
+
+
+const prompt = "What is the capital of France?";
+const responseSchema = z.object({ capital: z.string() });
+// response is guaranteed to be of type { capital: string; } !
+const response = await callOpenRouter(prompt, responseSchema, model);
+```
+
+Copy the thinkingSchemaMiddleware.ts file from this repo to your project and you should be good to go!
+
 ## Background
 
 https://github.com/vercel/ai/issues/9351 @Redaren suggested a solution that was breaking for me - wrong types, (no withMiddleware and wrong object shape in wrapGenerate)
