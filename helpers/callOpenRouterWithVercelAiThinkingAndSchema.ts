@@ -1,19 +1,22 @@
 import { openrouter } from "@openrouter/ai-sdk-provider";
-import { wrapLanguageModel, generateObject } from "ai";
+import { wrapLanguageModel, generateObject, type LanguageModel } from "ai";
 import type z from "zod";
 import { thinkingSchemaMiddleware } from "./thinkingSchemaMiddleware";
 
-
-
 export const callOpenRouterWithVercelAiThinkingAndSchema = async <T>(
   prompt: string,
-  zodSchema: z.ZodSchema<T>,
-  model: string = "google/gemini-2.5-pro",
+  schema: z.ZodSchema<T>,
+  modelName: string
 ) => {
+  let model: LanguageModel = openrouter(modelName);
+  if (["claude", "minimax", "kimi"].some((name) => modelName.includes(name))) {
+    model = wrapLanguageModel({ model, middleware: thinkingSchemaMiddleware });
+  }
+
   const { object } = await generateObject({
-    model: openrouter(model),
-    schema: zodSchema,
-    prompt: prompt,
+    model,
+    schema,
+    prompt,
   });
 
   return object as T;
